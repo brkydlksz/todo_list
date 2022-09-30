@@ -1,37 +1,47 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const date = require(__dirname + "/date.js");
 const app = express();
 
 app.set("view engine","ejs");
-
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static("public"));
 
-var lists =["eat","sleep"];
-
+let lists =["eat","sleep"];
+let workİtems =[];
 app.get("/", function(req,res){
 
-    var today = new Date();
-    
-    var options = {
-        weekday:"long",
-        day: "numeric",
-        month:"long"
-    };
+let day = date.getDate();
+console.log(date.getDay())
 
-    var day = today.toLocaleDateString("en-US",options);
-
-    res.render("list",{daysof:day, adding:lists});
+    res.render("list",{listTitle:day, adding:lists});
+});
+app.post("/", function(req,res){
+   
+    var addList = req.body.add;
+    console.log(req.body.list);
+    if(req.body.list ==="Work"){
+        workİtems.push(addList);
+        res.redirect("/work")
+    }
+    else {
+        lists.push(addList);
     
+        res.redirect("/");
+    }
+
 
 });
 
-app.post("/", function(req,res){
-    var addList = req.body.add;
+app.get("/work",function(req,res){
+     res.render("list", {listTitle:"Work", adding:workİtems});
+})
 
-    lists.push(addList);
+app.post("/work", function(req,res){
     
-    res.redirect("/");
+    let addList = req.body.add
+    workİtems.push(addList)
+    res.redirect("/work")
 });
 
 app.listen("3000", function(){
